@@ -1,0 +1,6 @@
+node_modules/
+dist/
+wasm-pkg/
+*.tsbuildinfo
+*.zip
+src/crypto-wasm/target/
