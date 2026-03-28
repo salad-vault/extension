@@ -53,7 +53,7 @@ class BridgeClient {
   async init() {
     const data = await chrome.storage.local.get("bridge_token");
     if (data.bridge_token) {
-      this.token = data.bridge_token;
+      this.token = data.bridge_token as string;
     }
     this.connect();
   }
