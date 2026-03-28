@@ -183,13 +183,30 @@ async function handleBackgroundMessage(msg: BackgroundMessage): Promise<any> {
   }
 }
 
-function handleContentMessage(msg: ContentToBackgroundMessage, sender: chrome.runtime.MessageSender) {
+async function handleContentMessage(msg: ContentToBackgroundMessage, sender: chrome.runtime.MessageSender) {
   switch (msg.type) {
     case "PASSWORD_FIELD_FOCUSED":
-      // Could show badge or trigger suggestions
       if (sender.tab?.id) {
         chrome.action.setBadgeText({ text: "●", tabId: sender.tab.id });
         chrome.action.setBadgeBackgroundColor({ color: "#4CAF50", tabId: sender.tab.id });
+
+        // If bridge is authenticated, search for matching credentials
+        if (bridgeClient.authenticated && msg.payload.url) {
+          try {
+            const hostname = new URL(msg.payload.url).hostname.replace("www.", "");
+            const results = await bridgeClient.search(hostname);
+            if (results.length > 0) {
+              // Get full credentials for the best match and autofill
+              const creds = await bridgeClient.getCredentials(results[0].feuille_id);
+              chrome.tabs.sendMessage(sender.tab.id!, {
+                type: "AUTOFILL",
+                payload: { username: creds.username, password: creds.password },
+              });
+            }
+          } catch {
+            // Bridge not available or app locked — ignore
+          }
+        }
       }
       break;
 
