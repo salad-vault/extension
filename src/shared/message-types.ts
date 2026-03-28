@@ -21,7 +21,11 @@ export type BackgroundMessage =
   | { type: "LOGIN"; payload: { email: string; password: string } }
   | { type: "MFA_VERIFY"; payload: { mfa_token: string; totp_code: string } }
   | { type: "CHECK_DEVICE_KEY" }
-  | { type: "UPDATE_SETTINGS"; payload: { api_url?: string; auto_lock_minutes?: number; clipboard_clear_seconds?: number } };
+  | { type: "UPDATE_SETTINGS"; payload: { api_url?: string; auto_lock_minutes?: number; clipboard_clear_seconds?: number } }
+  | { type: "BRIDGE_PAIR"; payload: { code: string } }
+  | { type: "BRIDGE_STATUS" }
+  | { type: "BRIDGE_SEARCH"; payload: { query: string } }
+  | { type: "BRIDGE_GET_CREDENTIALS"; payload: { feuille_id: string } };
 
 // ── Responses from background → popup/content ──
 

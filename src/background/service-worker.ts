@@ -22,6 +22,7 @@ import {
   SYNC_INTERVAL_MINUTES,
   DEFAULT_CLIPBOARD_CLEAR_MS,
 } from "../shared/constants";
+import { bridgeClient } from "../shared/bridge-client";
 
 // ── Message routing ──
 
@@ -150,6 +151,33 @@ async function handleBackgroundMessage(msg: BackgroundMessage): Promise<any> {
       return { ok: true };
     }
 
+    // ── Bridge (desktop app) commands ──
+
+    case "BRIDGE_STATUS": {
+      return {
+        ok: true,
+        data: {
+          connected: bridgeClient.connected,
+          authenticated: bridgeClient.authenticated,
+        },
+      };
+    }
+
+    case "BRIDGE_PAIR": {
+      const token = await bridgeClient.pair(msg.payload.code);
+      return { ok: true, data: { token } };
+    }
+
+    case "BRIDGE_SEARCH": {
+      const results = await bridgeClient.search(msg.payload.query);
+      return { ok: true, data: results };
+    }
+
+    case "BRIDGE_GET_CREDENTIALS": {
+      const creds = await bridgeClient.getCredentials(msg.payload.feuille_id);
+      return { ok: true, data: creds };
+    }
+
     default:
       return { ok: false, error: "Unknown message type" };
   }
@@ -210,6 +238,11 @@ async function resetAutoLockAlarm() {
 // Set up periodic sync
 chrome.alarms.create(ALARM_PERIODIC_SYNC, {
   periodInMinutes: SYNC_INTERVAL_MINUTES,
+});
+
+// Initialize bridge connection to desktop app
+bridgeClient.init().catch(() => {
+  // Bridge not available — desktop app may not be running
 });
 
 // ── Helpers ──
