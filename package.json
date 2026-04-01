@@ -17,7 +17,7 @@
     "@preact/preset-vite": "^2.9.0",
     "@types/chrome": "^0.1.37",
     "@types/webextension-polyfill": "^0.12.1",
-    "typescript": "^5.7.0",
+    "typescript": "^6.0.2",
     "vite": "^6.0.0"
   }
 }
